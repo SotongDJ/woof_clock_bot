@@ -1,0 +1,3 @@
+[submodule "pyMastoChat"]
+	path = pyMastoChat
+	url = git@github.com:SotongDJ/pyMastoChat.git
