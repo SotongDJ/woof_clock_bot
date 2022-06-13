@@ -1,6 +1,7 @@
 # For bot use
 *.txt
 *.json
+userData/
 
 # For Virtual Environment
 env/
