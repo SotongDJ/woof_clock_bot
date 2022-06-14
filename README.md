@@ -6,27 +6,24 @@ Chatbot that base on Mastodon.py for Mastodon instance
 
 * clone repo and submodule
 
-    * Windows
+```bash
+git clone https://github.com/SotongDJ/woof_clock_bot.git
+cd woof_clock_bot
+git submodule init
+git submodule update --init --recursive
+# future submodule update
+git submodule update --remote --recursive
+```
 
-    ```pwsh
-    git clone https://github.com/SotongDJ/woof_clock_bot.git
-    cd woof_clock_bot
-    git submodule init
-    git submodule update --init --recursive
-    # future submodule update
-    git submodule update --remote --recursive
-    ```
+* setup virtual environment (use whatever you want) and activate
 
-    * Linux
+* install Mastodon.py
 
-    ```bash
-    git clone https://github.com/SotongDJ/woof_clock_bot.git
-    cd woof_clock_bot
-    git submodule init
-    git submodule update --init --recursive
-    # future submodule update
-    git submodule update --remote --recursive
-    ```
+```bash
+pip install Mastodon.py
+# if python2 exist
+pip3 install Mastodon.py
+```
 
 ## Configuration
 
