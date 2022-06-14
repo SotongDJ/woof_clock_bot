@@ -1,12 +1,15 @@
-import time, random, json, pathlib
-import pyMastoChat
-class woofer(pyMastoChat.chatbot):
+import time, random, json, pathlib, signal
+from pyMastoChat import bot
+class woofer(bot.chatbot):
     def __init__(self):
+        self.exit_key = False
         self.bot_name = "woof"
-        self.log_name = "woof-"+pyMastoChat.datetime() # whithout extension
-        self.config_host = database()
-        self.convers_host = database()
+        self.log_name = "woof-"+bot.datetime(output_str="yyyymmdd") # whithout extension
+        self.config_host = bot.database()
+        self.convers_host = bot.database()
         self.initiation()
+        signal.signal(signal.SIGINT, self.exit_now)
+        signal.signal(signal.SIGTERM, self.exit_now)
     def watching(self):
         self.log_host.timeStamp("Start: watch()")
         small_msg = "woof~"
@@ -16,94 +19,93 @@ class woofer(pyMastoChat.chatbot):
         continue_bool = True
         count_int = 1
 
-        record_host = pyMastoChat.database()
+        record_host = bot.database()
         record_host.target_path = "userData/woof-record.json"
         record_host.load()
 
-        photo_host = pyMastoChat.database()
+        photo_host = bot.database()
         photo_host.target_path = "userData/woof-photo.json"
         photo_host.load()
                 
         content_dict = record_host.data.get("#content",dict())
-        date_set = set(record_host.data.get("#time",list()))
-        photo_time_set = set(record_host.data.get("#photoTime",list()))
-        post_time_set = set(record_host.data.get("#postTime",list()))
-        post_photo_set = set(record_host.data.get("#postPhoto",list()))
+        queue_dict = record_host.data.get("#queue",dict())
+        posted_dict = record_host.data.get("#posted",dict())
+        posted_photo_set = set(record_host.data.get("#posted_photo",list()))
+
         photo_dict = photo_host.data.get("#photo",dict())
 
         while continue_bool:
-            title_Str = pyMastoChat.datetime(output_str="yyyymmddhh")
-            hour_int = int(pyMastoChat.datetime(output_str="H"))
-            min_int = int(pyMastoChat.datetime(output_str="N"))
-            if title_Str not in date_set and 10 > min_int:
+            today_str = bot.datetime(output_str="yyyymmdd") 
+            current_time_str = bot.datetime(output_str="yyyymmddhh")
+            hour_int = int(bot.datetime(output_str="H"))
+            min_int = int(bot.datetime(output_str="N"))
+            run_hour_int = hour_int
+            if current_time_str not in posted_dict.keys() and 5 > min_int:
                 print("Period start:",count_int,end="\r")
-                if hour_int >= 12:
-                    woof_msg = large_msg
-                    hour_int = hour_int - 12
+                emoji_msg = ""
+                if hour_int == 0:
+                    woof_msg = F"[12AM midnight]\n"
+                elif hour_int == 12:
+                    run_hour_int = run_hour_int - 12
+                    woof_msg = F"[12PM noon]\n{large_msg}"
+                elif hour_int > 12:
+                    run_hour_int = hour_int - 12
+                    woof_msg = F"[{run_hour_int}PM]\n{large_msg}"
                 else:
-                    woof_msg = ""
-                while hour_int > 0:
-                    hour_int = hour_int - 4
-                    if hour_int > 0:
+                    woof_msg = F"[{hour_int}AM]\n"
+                while run_hour_int > 0:
+                    run_hour_int = run_hour_int - 4
+                    if run_hour_int > 0:
                         woof_msg = woof_msg + small_msg * 4 + "\n"
                     else:
-                        woof_msg = woof_msg + small_msg * (4 + hour_int)
-                magic_msg = ""
-                if woof_msg == "":
-                    if [ n for n in photo_dict.keys() if n not in post_photo_set ]:
-                        woof_msg = random.choice(ear_list).format(random.choice(face_list))
-                        target_hour_int = random.choice(range(1,24))
-                        if len(str(target_hour_int)) == 1:
-                            target_hour_str = "0"+ str(target_hour_int)
-                        elif len(str(target_hour_int)) == 2:
-                            target_hour_str = str(target_hour_int)
-                        magic_msg = target_hour_str
-                        photo_time_Set.update({ "{}{}".format(pyMastoChat.datetime(output_str="yyyymmdd"),target_hour_str) })
+                        woof_msg = woof_msg + small_msg * (4 + run_hour_int)
+                if queue_dict.get(today_str,"") == str(hour_int):
+                    photo_list = [ n for n in photo_dict.keys() if n not in posted_photo_set ]
+                    if len(photo_list) > 0:
+                        target_photo = random.choice(photo_list)
+                        final_msg = photo_dict[target_photo]["final_msg"]
+                        file_str = photo_dict[target_photo]["file_str"]
+                        media_toot = self.host.media_post(file_str)
+                        pathlib.Path('userData/media-woof/photoID').mkdir(parents=True,exist_ok=True)
+                        json_str = 'userData/media-woof/photoID/{}.json'.format(media_toot.id)
+                        with open(json_str,'w') as target_handle:
+                            json.dump(media_toot, target_handle, indent=2)
+                        spoiler_msg = self.contentPurifier(woof_msg)
+                        post_toot = self.host.status_post(final_msg, media_ids=[media_toot.id], sensitive=True, visibility="public", spoiler_text=spoiler_msg)
+                        posted_photo_set.update({ target_photo })
+                        posted_dict.update({ current_time_str : post_toot.id })
                     else:
-                        woof_msg = random.choice(ear_list).format(" T ᴥ T ")
-                        magic_msg = "!"
-                if title_str in photo_time_Set and title_str not in post_time_set:
-                    spoiler_msg = woof_msg
-                    photo_list = [ n for n in photo_dict.keys() if n not in post_photo_set ]
-                    target_photo = random.choice(photo_list)
-                    final_msg = photo_dict[target_photo]["final_msg"]
-                    file_str = photo_dict[target_photo]["file_str"]
-                    media_toot = self.host.media_post(file_str)
-                    pathlib.Path('userData/media-woof/photoID').mkdir(parents=True,exist_ok=True)
-                    json_str = 'userData/media-woof/photoID/{id}.json'.format(id=media_toot.id)
-                    with open(json_str,'w') as target_handle:
-                        json.dump(media_toot, target_handle, indent=2)
-                    post_toot = self.host.status_post(final_msg, media_ids=[media_toot.id], sensitive=True, visibility="public", spoiler_text=spoiler_msg)
-                    post_photo_set.update({ target_photo })
-                    post_time_set.update({ title_str })
-                    date_set.update({ title_str })
-                elif magic_msg == "!":
-                    post_toot = self.host.status_post("Magic are finding their way today", visibility="public", spoiler_text=woof_msg)
-                    date_set.update({ title_str })
-
-                elif magic_msg != "" :
-                    post_toot = self.host.status_post("Magic: {}".format(magic_msg), visibility="public", spoiler_text=woof_msg)
-                    date_set.update({ title_str })
-
+                        emoji_msg = random.choice(ear_list).format(random.choice(face_list))
+                        post_toot = self.host.status_post(woof_msg, visibility="public", spoiler_text=emoji_msg)
+                        posted_dict.update({ current_time_str : post_toot.id })
+                elif today_str not in queue_dict.keys():
+                    magic_msg = str(random.choice(range(hour_int,24)))
+                    queue_dict[today_str] = magic_msg
+                    post_toot = self.host.status_post(woof_msg+F"\nMagic number: {magic_msg}", visibility="public", spoiler_text="Magic are finding their way today")
+                    posted_dict.update({ current_time_str : post_toot.id })
                 else:
                     post_toot = self.host.status_post(woof_msg, visibility="public")
-                    date_set.update({ title_str })
+                    posted_dict.update({ current_time_str : post_toot.id })
                 record_set = set(content_dict.get(woof_msg,list()))
-                record_set.update({ title_str })
+                record_set.update({ current_time_str })
                 content_dict[woof_msg] = list(record_set)
                 # self.logHost.record("  Reply: {}".format(post_toot.content))
-
                 record_host.setIt("#content",content_dict)
-                record_host.update_set("#time",date_set)
-                record_host.update_set("#photoTime",photo_time_Set)
-                record_host.update_set("#postTime",post_time_set)
-                record_host.update_set("#postPhoto",post_photo_set)
+                record_host.setIt("#queue",queue_dict)
+                record_host.setIt("#posted",posted_dict)
+                record_host.updateSet("#posted_photo",posted_photo_set)
 
-                print(post_toot.content)
+                self.log_host.timeStamp(post_toot.content)
 
-            pyMastoChat.countdown(60,"Period done:  {}".format(count_int))
+            second_int = 60
+            self.countdown(second_int,F"Period done, current batch: {count_int}, {second_int} sec per batch")
             count_int = count_int + 1
-
+    def exit_now(self, *args):
+        self.exit_key = True
 if __name__ == "__main__":
     Bot = woofer()
-    Bot.watching()
+    while not Bot.exit_key:
+        time.sleep(1)
+        Bot.watching()
+    Bot.log_host.timeStamp("Exit")
+    Bot.log_host.stop()
