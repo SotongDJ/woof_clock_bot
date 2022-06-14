@@ -1,15 +1,12 @@
-import time, random, json, pathlib, signal
+import time, random, json, pathlib
 from pyMastoChat import bot
 class woofer(bot.chatbot):
     def __init__(self):
-        self.exit_key = False
         self.bot_name = "woof"
         self.log_name = "woof-"+bot.datetime(output_str="yyyymmdd") # whithout extension
         self.config_host = bot.database()
         self.convers_host = bot.database()
         self.initiation()
-        signal.signal(signal.SIGINT, self.exit_now)
-        signal.signal(signal.SIGTERM, self.exit_now)
     def watching(self):
         self.log_host.timeStamp("Start: watch()")
         small_msg = "woof~"
@@ -104,8 +101,4 @@ class woofer(bot.chatbot):
         self.exit_key = True
 if __name__ == "__main__":
     Bot = woofer()
-    while not Bot.exit_key:
-        time.sleep(1)
-        Bot.watching()
-    Bot.log_host.timeStamp("Exit")
-    Bot.log_host.stop()
+    Bot.watching()
