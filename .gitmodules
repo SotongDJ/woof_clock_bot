@@ -1,6 +1,6 @@
-[submodule "pyMastoChat"]
-	path = pyMastoChat
-	url = git@github.com:SotongDJ/pyMastoChat.git
 [submodule "pyTimeTag"]
 	path = pyTimeTag
-	url = git@github.com:SotongDJ/pyTimeTag.git
+	url = https://github.com/SotongDJ/pyTimeTag.git
+[submodule "pyMastoChat"]
+	path = pyMastoChat
+	url = https://github.com/SotongDJ/pyMastoChat.git
