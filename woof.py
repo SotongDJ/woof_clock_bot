@@ -73,6 +73,7 @@ class woofer(bot.chatbot):
                         posted_dict.update({ current_time_str : post_toot.id })
                     else:
                         emoji_msg = random.choice(ear_list).format(random.choice(face_list))
+                        woof_msg = woof_msg + "\n#woofwoofhappy"
                         post_toot = self.host.status_post(woof_msg, visibility="public", spoiler_text=emoji_msg)
                         posted_dict.update({ current_time_str : post_toot.id })
                 elif today_str not in queue_dict.keys() hour_int != 23:
