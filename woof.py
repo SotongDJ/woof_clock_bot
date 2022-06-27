@@ -75,10 +75,11 @@ class woofer(bot.chatbot):
                         emoji_msg = random.choice(ear_list).format(random.choice(face_list))
                         post_toot = self.host.status_post(woof_msg, visibility="public", spoiler_text=emoji_msg)
                         posted_dict.update({ current_time_str : post_toot.id })
-                elif today_str not in queue_dict.keys():
-                    magic_msg = str(random.choice(range(hour_int,24)))
+                elif today_str not in queue_dict.keys() hour_int != 23:
+                    begin_int = hour_int if hour_int > 8 else 8
+                    magic_msg = str(random.choice(range(begin_int,23)))
                     queue_dict[today_str] = magic_msg
-                    post_toot = self.host.status_post(woof_msg+F"\nMagic number: {magic_msg}", visibility="public", spoiler_text="Magic are finding their way today")
+                    post_toot = self.host.status_post(woof_msg+F"\nMagic number: {magic_msg}", visibility="public", spoiler_text="Magic are finding their way today! Woof!")
                     posted_dict.update({ current_time_str : post_toot.id })
                 else:
                     post_toot = self.host.status_post(woof_msg, visibility="public")
