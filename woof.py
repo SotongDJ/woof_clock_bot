@@ -76,7 +76,7 @@ class woofer(bot.chatbot):
                         woof_msg = woof_msg + "\n#woofwoofhappy"
                         post_toot = self.host.status_post(woof_msg, visibility="public", spoiler_text=emoji_msg)
                         posted_dict.update({ current_time_str : post_toot.id })
-                elif today_str not in queue_dict.keys() hour_int != 23:
+                elif today_str not in queue_dict.keys() and hour_int != 23:
                     begin_int = hour_int if hour_int > 8 else 8
                     magic_msg = str(random.choice(range(begin_int,23)))
                     queue_dict[today_str] = magic_msg
