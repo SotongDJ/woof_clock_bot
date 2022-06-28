@@ -38,7 +38,7 @@ class woofer(bot.chatbot):
             min_int = int(bot.datetime(output_str="N"))
             run_hour_int = hour_int
             if current_time_str not in posted_dict.keys() and 5 > min_int:
-                print("Period start:",count_int,end="\r")
+                # print("Period start:",count_int,end="\r")
                 emoji_msg = ""
                 if hour_int == 0:
                     woof_msg = F"[12AM midnight]\n"
