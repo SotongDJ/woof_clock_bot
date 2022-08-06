@@ -3,7 +3,7 @@ from pyMastoChat import bot
 class woofer(bot.chatbot):
     def __init__(self):
         self.bot_name = "woof"
-        self.log_name = "woof-"+bot.datetime(output_str="yyyymmdd") # whithout extension
+        self.log_name = "log/woof-"+bot.datetime(output_str="yyyymmdd") # whithout extension
         self.config_host = bot.database()
         self.convers_host = bot.database()
         self.initiation()
