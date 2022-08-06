@@ -30,9 +30,13 @@ class woofer(bot.chatbot):
         posted_photo_set = set(record_host.data.get("#posted_photo",list()))
 
         photo_dict = photo_host.data.get("#photo",dict())
-
+        host_day_str = bot.datetime(output_str="yyyymmdd") 
         while continue_bool:
-            today_str = bot.datetime(output_str="yyyymmdd") 
+            today_str = bot.datetime(output_str="yyyymmdd")
+            if host_day_str != today_str:
+                self.log_name = "woof-"+bot.datetime(output_str="yyyymmdd")
+                self.reinitiation()
+                host_day_str = today_str
             current_time_str = bot.datetime(output_str="yyyymmddhh")
             hour_int = int(bot.datetime(output_str="H"))
             min_int = int(bot.datetime(output_str="N"))
